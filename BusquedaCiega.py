@@ -77,3 +77,61 @@ def obtener_sucesores(estado: tuple[int, int, int]) -> list[tuple[int, int, int]
                     estados_sucesores.append(nuevo_estado)
                     
     return estados_sucesores
+
+
+def bfs(inicial, objetivo):
+    cola = deque([inicial])  # Cola para BFS
+    visitados = set([inicial])  # Conjunto para estados visitados
+    padre = {inicial: None}  # Diccionario para rastrear el camino
+    nodos_expandidos = 0    
+    
+    while cola:  # Mientras haya estados en la cola
+        estado = cola.popleft()  
+        if estado == objetivo:
+            break
+        nodos_expandidos += 1
+        for sucesor in obtener_sucesores(estado):  # Obtener sucesores del estado actual
+            if sucesor not in visitados:  # Si el sucesor no ha sido visitado
+                visitados.add(sucesor)
+                cola.append(sucesor)
+                padre[sucesor] = estado
+                
+    existe_ruta = objetivo in padre  # Verificar si se encontró una ruta al objetivo
+    ruta = []
+    if existe_ruta:
+        actual = objetivo
+        while actual is not None:  # Reconstruir la ruta desde el objetivo hasta el inicio
+            ruta.append(actual)
+            actual = padre[actual]
+        ruta.reverse()
+        
+    return existe_ruta, ruta, nodos_expandidos, len(visitados)
+
+
+def dfs(inicio, objetivo):
+    pila = [inicio]  # Pila para DFS
+    visitados = {inicio}  # Conjunto para estados visitados
+    padre = {inicio: None}  # Diccionario para rastrear el camino
+    nodos_expandidos = 0
+    
+    while pila:  # Mientras haya estados en la pila
+        estado = pila.pop()
+        if estado == objetivo:
+            break
+        nodos_expandidos += 1
+        for sucesor in obtener_sucesores(estado):  # Obtener sucesores del estado actual
+            if sucesor not in visitados:  # Si el sucesor no ha sido visitado
+                visitados.add(sucesor)
+                pila.append(sucesor)
+                padre[sucesor] = estado
+                
+    existe_ruta = objetivo in padre  # Verificar si se encontró una ruta al objetivo
+    ruta = []
+    if existe_ruta:
+        actual = objetivo
+        while actual is not None:  # Reconstruir la ruta desde el objetivo hasta el inicio
+            ruta.append(actual)
+            actual = padre[actual]
+        ruta.reverse()
+        
+    return existe_ruta, ruta, nodos_expandidos, len(visitados)
