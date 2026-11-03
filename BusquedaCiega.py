@@ -107,7 +107,6 @@ def bfs(inicial, objetivo):
         
     return existe_ruta, ruta, nodos_expandidos, len(visitados)
 
-
 def dfs(inicio, objetivo):
     pila = [inicio]  # Pila para DFS
     visitados = {inicio}  # Conjunto para estados visitados
@@ -135,3 +134,56 @@ def dfs(inicio, objetivo):
         ruta.reverse()
         
     return existe_ruta, ruta, nodos_expandidos, len(visitados)
+
+def calcular_factor_ramificacion_efectivo(nodos_totales: int, profundidad: int) -> float:
+    if profundidad <= 0 or nodos_totales <= 1:
+        return 0.0
+        
+    def evaluar_arbol(b):
+        if b == 1.0:
+            return float(profundidad + 1)
+        return sum(b**i for i in range(profundidad + 1))
+
+    # Búsqueda binaria para b* entre 0.0 y nodos_totales
+    low, high = 0.0, float(nodos_totales)
+    for _ in range(50):
+        mid = (low + high) / 2.0
+        if evaluar_arbol(mid) < nodos_totales:
+            low = mid
+        else:
+            high = mid
+    return (low + high) / 2.0
+
+def ejecutar_benchmark():
+    print(f"{'Benchmark DFS y BFS':^77}")
+    print(" ")
+    
+    # BFS 
+    t_inicio = time.perf_counter()
+    exito_bfs, ruta_bfs, exp_bfs, vis_bfs = bfs(ESTADO_INICIAL, ESTADO_OBJETIVO)
+    tiempo_bfs = time.perf_counter() - t_inicio
+    profundidad_bfs = len(ruta_bfs) - 1 if exito_bfs else 0
+    b_estrella_bfs = calcular_factor_ramificacion_efectivo(vis_bfs, profundidad_bfs)
+    
+    # DFS 
+    t_inicio = time.perf_counter()
+    exito_dfs, ruta_dfs, exp_dfs, vis_dfs = dfs(ESTADO_INICIAL, ESTADO_OBJETIVO)
+    tiempo_dfs = time.perf_counter() - t_inicio
+    profundidad_dfs = len(ruta_dfs) - 1 if exito_dfs else 0
+    b_estrella_dfs = calcular_factor_ramificacion_efectivo(vis_dfs, profundidad_dfs)
+    
+    # Despliegue de Resultados en Tabla 
+    print(f"{'Métrica Evaluada':<32} | {'BFS (Anchura)':<20} | {'DFS (Profundidad)':<20}")
+    print("-" * 79)
+    print(f"{'Solución Encontrada':<32} | {'Sí (' + str(profundidad_bfs) + ' pasos)' if exito_bfs else 'No':<20} | {'Sí (' + str(profundidad_dfs) + ' pasos)' if exito_dfs else 'No':<20}")
+    print(f"{'Nodos Expandidos':<32} | {exp_bfs:<20} | {exp_dfs:<20}")
+    print(f"{'Estados Descubiertos (Memoria)':<32} | {vis_bfs:<20} | {vis_dfs:<20}")
+    print(f"{'Tiempo de Ejecución (s)':<32} | {tiempo_bfs:.7f} s           | {tiempo_dfs:.7f} s")
+    print(f"{'Factor de Ramificación (b*)':<32} | {b_estrella_bfs:.4f}               | {b_estrella_dfs:.4f}")
+    
+    if exito_bfs:
+        print("\nSecuencia Óptima Encontrada (BFS):")
+        for idx, paso in enumerate(ruta_bfs):
+            print(f"  Paso {idx:2d} -> Misioneros Izq: {paso[0]}, Caníbales Izq: {paso[1]}, Bote: {'Izquierda' if paso[2]==1 else 'Derecha'}")
+if __name__ == "__main__":
+    ejecutar_benchmark()
