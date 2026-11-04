@@ -1,6 +1,6 @@
 import time
 from collections import deque
-
+from itertools import zip_longest
 # Representación del estado: (misioneros_izquierda, canibales_izquierda, bote_en_izquierda)
 # posicion_bote: 1 si el bote está en la orilla izquierda, 0 si está en la orilla derecha
 ESTADO_INICIAL = (3, 3, 1)
@@ -156,7 +156,7 @@ def calcular_factor_ramificacion_efectivo(nodos_totales: int, profundidad: int) 
 
 def ejecutar_benchmark():
     print(f"{'Benchmark DFS y BFS':^77}")
-    print(" ")
+    print("-" * 79)
     
     # BFS 
     t_inicio = time.perf_counter()
@@ -181,9 +181,17 @@ def ejecutar_benchmark():
     print(f"{'Tiempo de Ejecución (s)':<32} | {tiempo_bfs:.7f} s           | {tiempo_dfs:.7f} s")
     print(f"{'Factor de Ramificación (b*)':<32} | {b_estrella_bfs:.4f}               | {b_estrella_dfs:.4f}")
     
-    if exito_bfs:
-        print("\nSecuencia Óptima Encontrada (BFS):")
-        for idx, paso in enumerate(ruta_bfs):
-            print(f"  Paso {idx:2d} -> Misioneros Izq: {paso[0]}, Caníbales Izq: {paso[1]}, Bote: {'Izquierda' if paso[2]==1 else 'Derecha'}")
+    print("\n" + f"{'Comparativa de Caminos (BFS vs DFS)':^79}")
+    print(f"{'Paso':<8} | {'Camino BFS':<32} | {'Camino DFS':<32}")
+    print("-" * 79)
+    
+    for idx, (paso_bfs, paso_dfs) in enumerate(zip_longest(ruta_bfs, ruta_dfs, fillvalue=None)):
+        str_bfs = str(paso_bfs) if paso_bfs is not None else "--- (Meta alcanzada)"
+        str_dfs = str(paso_dfs) if paso_dfs is not None else "--- (Meta alcanzada)"
+        
+        print(f"{idx:<8} | {str_bfs:<32} | {str_dfs:<32}")
+    print("-" * 79)
+
+    
 if __name__ == "__main__":
     ejecutar_benchmark()
